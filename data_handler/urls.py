@@ -7,5 +7,6 @@ urlpatterns = [
    path("entries/add_book/", add_book, name = "add-book"),
    path("entries/get_user_books/", get_user_books, name = "get-user-books"),
    path('entries/get_all_books/', get_all_books, name = "get-all-books"),
+   path('entries/check_isbn/', check_isbn, name = "check-isbn")
 
 ]

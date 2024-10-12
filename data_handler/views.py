@@ -82,3 +82,17 @@ def get_all_books(request):
     # Serializowanie wielu obiektów wymaga many=True
     serializer = UserBookSerializer(books, many=True)
     return Response(serializer.data, status=200)
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def check_isbn(request):
+    isbn = request.data.get("isbn")
+    isbn_books = Book.objects.filter(isbn = isbn)
+    
+    exists = isbn_books.exists()
+    
+    return Response({"exists": exists}, status=status.HTTP_200_OK)
+
+
+
