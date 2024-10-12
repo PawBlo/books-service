@@ -88,11 +88,13 @@ def get_all_books(request):
 @permission_classes([IsAuthenticated])
 def check_isbn(request):
     isbn = request.data.get("isbn")
-    isbn_books = Book.objects.filter(isbn = isbn)
+    isbn_book = Book.objects.filter(isbn = isbn).first()
     
-    exists = isbn_books.exists()
-    
-    return Response({"exists": exists}, status=status.HTTP_200_OK)
+    if isbn_book:
+        serializer = BookSerializer(isbn_book)
+        return Response({"exists": True, "book" : serializer.data}, status=status.HTTP_200_OK)
+    else:
+        return Response({"exists": False }, status=status.HTTP_200_OK)
 
 
 
