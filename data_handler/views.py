@@ -94,6 +94,10 @@ def get_book(request):
     if isbn_book:
         print(isbn_book)
         serializer = BookSerializer(isbn_book)
+        UserBook.objects.create(user=user,
+                                       book=isbn_book,
+                                       is_for_sale = False,
+                                       condition = 'new')
         return Response({"exists": True, "book" : serializer.data}, status=status.HTTP_200_OK)
     else:
         print("isbn book:", isbn_book)
