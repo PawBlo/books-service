@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from .models import Entry, Book, UserBook
 from .serializers import EntrySerializer, BookSerializer,UserBookSerializer
-
+from .service import Scraper
 
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
@@ -86,15 +86,24 @@ def get_all_books(request):
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def check_isbn(request):
+def get_book(request):
     isbn = request.data.get("isbn")
     isbn_book = Book.objects.filter(isbn = isbn).first()
     
     if isbn_book:
+        print(isbn_book)
         serializer = BookSerializer(isbn_book)
         return Response({"exists": True, "book" : serializer.data}, status=status.HTTP_200_OK)
     else:
-        return Response({"exists": False }, status=status.HTTP_200_OK)
+        print("isbn book:", isbn_book)
+        print("isbn",  isbn)
+        s = Scraper(isbn)
+        img, title, author = s.get_info()
+        Book.objects.create(title = title, author=author, cover_image = img, isbn =isbn  )
+        isbn_book = Book.objects.filter(isbn = isbn).first()
+        serializer = BookSerializer(isbn_book)
+        return Response({"exists": True, "book" : serializer.data}, status=status.HTTP_200_OK)
+        
 
 
 
