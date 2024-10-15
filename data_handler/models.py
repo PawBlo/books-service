@@ -12,7 +12,7 @@ class Entry(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=255)  # Tytuł książki
     author = models.CharField(max_length=255)  # Autor książki
-    cover_image = models.ImageField(upload_to='book_covers/', null=True, blank=True)  # Zdjęcie okładki
+    cover_image = models.ImageField(upload_to='', null=True, blank=True)  # Zdjęcie okładki
     isbn = models.CharField(max_length=13, unique=True)  # Numer ISBN
 
     def __str__(self):
