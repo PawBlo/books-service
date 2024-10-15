@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import AllowAny
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.hashers import check_password
 
 
 @api_view(['POST'])
@@ -13,15 +14,22 @@ from rest_framework.permissions import IsAuthenticated
 def register(request):
     username = request.data.get('username')
     password = request.data.get('password')
-
-    # Tworzenie użytkownika
-    user = User.objects.create_user(username=username, password=password)
-    user.save()
+    email = request.data.get('email')
+    if len(username) < 5:
+        return Response({'error' : 'Invalid username'},status=status.HTTP_400_BAD_REQUEST)
+    if len(password) < 5:
+        return Response({'error' : 'Invalid password'},status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.create_user(username=username, password=password, email = email)
+        user.save()
+    except:
+        return Response({'error' : 'username exists'},status=status.HTTP_400_BAD_REQUEST)
     
     # Tworzenie tokena
     token, created = Token.objects.get_or_create(user=user)
 
-    return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+    return Response({'token': token.key,'username': username, 'email' : email}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Użytkownicy niezalogowani mogą się logować
@@ -32,7 +40,7 @@ def login(request):
 
     if user and user.check_password(password):
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
+        return Response({'token': token.key, 'username' : username, 'email' : user.email}, status=status.HTTP_200_OK)
 
     return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -55,3 +63,24 @@ def logout(request):
     except Token.DoesNotExist:
         return Response({'error': 'Token does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    user = request.user
+    new_password = request.data.get('new_password')
+    old_password = request.data.get('old_password')
+    if len(new_password) <5:
+        return Response({'error': 'Invalid new password'}, status=status.HTTP_400_BAD_REQUEST)
+    if not check_password(old_password, user.password):
+           return Response({'error': 'Invalid old password'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        user.set_password(new_password)
+        user.save()
+        Token.objects.filter(user=user).delete()
+        new_token, created = Token.objects.get_or_create(user=user)
+
+        return Response({'message': 'Changed password successfully.', 'token' : new_token.key}, status=status.HTTP_200_OK) 
+    except:
+        return Response({'error': 'Invalid new password'}, status=status.HTTP_400_BAD_REQUEST)
+    
