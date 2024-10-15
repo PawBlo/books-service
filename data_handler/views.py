@@ -87,6 +87,7 @@ def get_all_books(request):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_book(request):
+    user = request.user
     isbn = request.data.get("isbn")
     isbn_book = Book.objects.filter(isbn = isbn).first()
     
@@ -101,6 +102,10 @@ def get_book(request):
         img, title, author = s.get_info()
         Book.objects.create(title = title, author=author, cover_image = img, isbn =isbn  )
         isbn_book = Book.objects.filter(isbn = isbn).first()
+        UserBook.objects.create(user=user,
+                                       book=isbn_book,
+                                       is_for_sale = False,
+                                       condition = 'new')
         serializer = BookSerializer(isbn_book)
         return Response({"exists": True, "book" : serializer.data}, status=status.HTTP_200_OK)
         
