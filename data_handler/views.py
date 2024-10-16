@@ -112,6 +112,15 @@ def get_book(request):
                                        condition = 'new')
         serializer = BookSerializer(isbn_book)
         return Response({"exists": True, "book" : serializer.data}, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_latest_books(request):
+    recent_books = UserBook.objects.order_by('-created_at')[:5]
+    serializer = UserBookSerializer(recent_books, many=True)
+    return Response({'latest_books' : serializer.data}, status=status.HTTP_200_OK)
+
         
 
 

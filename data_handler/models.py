@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entries')
@@ -23,6 +24,7 @@ class UserBook(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)  # Powiązanie z książką
     is_for_sale = models.BooleanField(default=False)  # Czy książka jest na sprzedaż
     condition = models.CharField(max_length=50)  # Stan książki (np. 'nowa', 'używana', 'zniszczona')
+    created_at = models.DateTimeField(auto_now_add=True)  # Pole do przechowywania daty dodania rekordu
 
     def __str__(self):
         return f"{self.user.username} owns {self.book.title}"
