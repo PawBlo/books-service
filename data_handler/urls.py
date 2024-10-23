@@ -7,6 +7,6 @@ urlpatterns = [
    path("entries/add_book/", add_book, name = "add-book"),
    path("entries/get_user_books/", get_user_books, name = "get-user-books"),
    path('entries/get_all_books/', get_all_books, name = "get-all-books"),
-   path('entries/get_book/', get_book, name = "get-book")
-
+   path('entries/get_book/', get_book, name = "get-book"),
+   path('entries/search_users_with_book/', search_users_with_book, name = "search_users_with_book")
 ]

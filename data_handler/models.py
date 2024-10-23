@@ -23,6 +23,8 @@ class UserBook(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)  # Powiązanie z książką
     is_for_sale = models.BooleanField(default=False)  # Czy książka jest na sprzedaż
     condition = models.CharField(max_length=50)  # Stan książki (np. 'nowa', 'używana', 'zniszczona')
+    front_image = models.ImageField(upload_to='user_books/front_images/', null=True, blank=True)  # Zdjęcie przednie
+    back_image = models.ImageField(upload_to='user_books/back_images/', null=True, blank=True)  # Zdjęcie tylne
 
     def __str__(self):
         return f"{self.user.username} owns {self.book.title}"

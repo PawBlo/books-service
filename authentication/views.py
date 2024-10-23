@@ -12,9 +12,11 @@ from django.contrib.auth.hashers import check_password
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Użytkownicy niezalogowani mogą się rejestrować
 def register(request):
+    print(request)
     username = request.data.get('username')
     password = request.data.get('password')
     email = request.data.get('email')
+    print(username, " ", password, " ", email)
     if len(username) < 5:
         return Response({'error' : 'Invalid username'},status=status.HTTP_400_BAD_REQUEST)
     if len(password) < 5:
