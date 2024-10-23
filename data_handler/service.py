@@ -21,7 +21,7 @@ class Scraper:
             response = requests.get(img_url)
             path_img = f"{self.isbn}.jpg"
             if response.status_code == 200:
-                with open(f"./media/cover_images/{self.isbn}.jpg", 'wb') as file:
+                with open(f"./media/{self.isbn}.jpg", 'wb') as file:
                     file.write(response.content)
                 print("Grafika została zapisana jako obraz.jpg")
             else:

@@ -124,8 +124,11 @@ def get_book(request):
 
         # Serializacja i odpowiedź
         serializer = BookSerializer(isbn_book)
-        return Response({"exists": True, "book": serializer.data}, status=status.HTTP_200_OK)
-
+        UserBook.objects.create(user=user,
+                                       book=isbn_book,
+                                       is_for_sale = False,
+                                       condition = 'new')
+        return Response({"exists": True, "book" : serializer.data}, status=status.HTTP_200_OK)
     else:
         s = Scraper(isbn)
         img, title, author = s.get_info()
@@ -152,7 +155,17 @@ def get_book(request):
         user_book.save()
 
         serializer = BookSerializer(isbn_book)
-        return Response({"exists": True, "book": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"exists": True, "book" : serializer.data}, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_latest_books(request):
+    recent_books = UserBook.objects.order_by('-created_at')[:5]
+    serializer = UserBookSerializer(recent_books, many=True)
+    return Response({'latest_books' : serializer.data}, status=status.HTTP_200_OK)
+
+        
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
